@@ -532,13 +532,20 @@ with tab_predict:
     st.subheader("🎼 Similar Song List")
     st.caption(f"Top {top_k} nearest songs filtered from **{cluster_name}** ({len(cluster_df):,} tracks in cluster).")
 
-    # Spotlight Player for Top 1 Recommendation
+    # Spotify Player for Any Selected Similar Song
     if len(recommended_songs) > 0:
-        top_song = recommended_songs.iloc[0]
-        top_id = top_song["id_songs"]
-        st.markdown(f"**🎧 Top Match Preview:** *{top_song['name_song']}* by *{top_song['name_artists']}*")
+        rec_preview_options = {
+            f"🎵 #{i+1}: {r['name_song']} - {r['name_artists']} (Distance: {r['Distance']:.4f})": r["id_songs"]
+            for i, (_, r) in enumerate(recommended_songs.iterrows())
+        }
+        chosen_rec_label = st.selectbox(
+            "🎧 Select a Song to Listen with Spotify:",
+            list(rec_preview_options.keys()),
+            key="rec_spotify_select"
+        )
+        chosen_rec_id = rec_preview_options[chosen_rec_label]
         st.components.v1.html(
-            f'<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{top_id}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
+            f'<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{chosen_rec_id}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
             height=85
         )
 
