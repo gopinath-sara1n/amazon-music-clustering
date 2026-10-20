@@ -183,7 +183,7 @@ kmeans, scaler = load_model()
 X_scaled = get_scaled_catalog(df, scaler)
 
 # ----------------------------------------------------------
-# Session State for User Inputs
+# Preset Profiles & State Initialization
 # ----------------------------------------------------------
 DEFAULT_VALUES = {
     "danceability": 0.60,
@@ -211,7 +211,7 @@ PRESET_VIBES = {
         "danceability": 0.50, "energy": 0.32, "loudness": -12.5, "speechiness": 0.04,
         "acousticness": 0.78, "instrumentalness": 0.01, "liveness": 0.12, "valence": 0.42, "tempo": 105.0
     },
-    "🎙 Spoken Word & Audiobooks": {
+    "🎙 Spoken Word & Audio Stories": {
         "danceability": 0.66, "energy": 0.45, "loudness": -13.5, "speechiness": 0.85,
         "acousticness": 0.60, "instrumentalness": 0.00, "liveness": 0.40, "valence": 0.58, "tempo": 100.0
     },
@@ -221,6 +221,13 @@ PRESET_VIBES = {
     }
 }
 
+# Callback to reliably apply preset values directly to slider widget state
+def on_preset_change():
+    selected_preset = st.session_state.get("preset_selector")
+    if selected_preset in PRESET_VIBES:
+        for feat_name, feat_val in PRESET_VIBES[selected_preset].items():
+            st.session_state[feat_name] = float(feat_val)
+
 # ----------------------------------------------------------
 # Sidebar - User Input Audio Features
 # ----------------------------------------------------------
@@ -229,104 +236,87 @@ st.sidebar.markdown(
     "Adjust the audio feature values below and click **Predict Cluster**."
 )
 
-# Preset Loader
+# Preset Selector with on_change callback
 preset_selection = st.sidebar.selectbox(
     "⚡ Quick Load Preset (Optional):",
     list(PRESET_VIBES.keys()),
-    index=0
+    key="preset_selector",
+    on_change=on_preset_change
 )
-
-if "last_preset" not in st.session_state:
-    st.session_state.last_preset = preset_selection
-
-if preset_selection != st.session_state.last_preset:
-    st.session_state.last_preset = preset_selection
-    chosen_preset = PRESET_VIBES[preset_selection]
-    for k, v in chosen_preset.items():
-        st.session_state[k] = v
 
 st.sidebar.markdown("---")
 
-# DIRECT AUDIO CONTROLS
+# DIRECT AUDIO CONTROLS (Bound directly to session_state keys)
 danceability = st.sidebar.slider(
     "Danceability",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["danceability"]),
     step=0.01,
-    key="slider_danceability"
+    key="danceability"
 )
 
 energy = st.sidebar.slider(
     "Energy",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["energy"]),
     step=0.01,
-    key="slider_energy"
+    key="energy"
 )
 
 loudness = st.sidebar.number_input(
     "Loudness (dB)",
     min_value=-60.0,
     max_value=5.5,
-    value=float(st.session_state["loudness"]),
     step=0.1,
-    key="input_loudness"
+    key="loudness"
 )
 
 speechiness = st.sidebar.slider(
     "Speechiness",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["speechiness"]),
     step=0.01,
-    key="slider_speechiness"
+    key="speechiness"
 )
 
 acousticness = st.sidebar.slider(
     "Acousticness",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["acousticness"]),
     step=0.01,
-    key="slider_acousticness"
+    key="acousticness"
 )
 
 instrumentalness = st.sidebar.slider(
     "Instrumentalness",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["instrumentalness"]),
     step=0.01,
-    key="slider_instrumentalness"
+    key="instrumentalness"
 )
 
 liveness = st.sidebar.slider(
     "Liveness",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["liveness"]),
     step=0.01,
-    key="slider_liveness"
+    key="liveness"
 )
 
 valence = st.sidebar.slider(
     "Valence",
     min_value=0.0,
     max_value=1.0,
-    value=float(st.session_state["valence"]),
     step=0.01,
-    key="slider_valence"
+    key="valence"
 )
 
 tempo = st.sidebar.number_input(
     "Tempo (BPM)",
     min_value=0.0,
     max_value=250.0,
-    value=float(st.session_state["tempo"]),
     step=1.0,
-    key="input_tempo"
+    key="tempo"
 )
 
 st.sidebar.markdown("---")
@@ -349,17 +339,6 @@ predict_btn = st.sidebar.button(
     type="primary",
     use_container_width=True
 )
-
-# Sync session state
-st.session_state["danceability"] = danceability
-st.session_state["energy"] = energy
-st.session_state["loudness"] = loudness
-st.session_state["speechiness"] = speechiness
-st.session_state["acousticness"] = acousticness
-st.session_state["instrumentalness"] = instrumentalness
-st.session_state["liveness"] = liveness
-st.session_state["valence"] = valence
-st.session_state["tempo"] = tempo
 
 # ----------------------------------------------------------
 # Main Page Header & Dashboard Statistics
