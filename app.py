@@ -97,6 +97,10 @@ def load_data():
         return f"{mins}:{secs:02d}"
 
     df["duration_fmt"] = df["duration_ms"].apply(format_duration)
+    
+    # Extract release year safely
+    df["release_year"] = pd.to_datetime(df["release_date"], errors="coerce").dt.year.fillna(0).astype(int)
+    
     return df
 
 
@@ -123,9 +127,7 @@ def get_scaled_catalog(_df, _scaler):
 
 @st.cache_data
 def get_pca_projection(_df, _X_scaled, sample_size=3000):
-    sample_df = _df.groupby("Cluster", group_keys=False).apply(
-        lambda x: x.sample(min(len(x), sample_size // 4), random_state=42)
-    )
+    sample_df = _df.sample(frac=1.0, random_state=42).groupby("Cluster").head(sample_size // 4)
     pca = PCA(n_components=2, random_state=42)
     coords = pca.fit_transform(_X_scaled[sample_df.index])
     sample_df = sample_df.copy()
@@ -627,7 +629,7 @@ with tab_category_browse:
     with f_col3:
         cat_sort_order = st.selectbox(
             "Sort Order:",
-            ["Most Popular", "Least Popular", "Highest Danceability", "Highest Energy", "Highest Acousticness"],
+            ["Most Popular", "Least Popular", "Newest", "Oldest", "Highest Danceability", "Highest Energy", "Highest Acousticness"],
             key="cat_sort_select"
         )
     with f_col4:
@@ -648,6 +650,10 @@ with tab_category_browse:
         cat_filtered = cat_filtered.sort_values("popularity_songs", ascending=False)
     elif cat_sort_order == "Least Popular":
         cat_filtered = cat_filtered.sort_values("popularity_songs", ascending=True)
+    elif cat_sort_order == "Newest":
+        cat_filtered = cat_filtered.sort_values("release_year", ascending=False)
+    elif cat_sort_order == "Oldest":
+        cat_filtered = cat_filtered.sort_values("release_year", ascending=True)
     elif cat_sort_order == "Highest Danceability":
         cat_filtered = cat_filtered.sort_values("danceability", ascending=False)
     elif cat_sort_order == "Highest Energy":
@@ -809,7 +815,7 @@ with tab_pca:
     """)
     
     pca_df, pca_model = get_pca_projection(df, X_scaled, sample_size=3000)
-    user_coords = pca_model.transform(input_scaled)[0]
+    user_coords = pca_model.transform(input_scaled.values)[0]
 
     fig_pca = px.scatter(
         pca_df,
