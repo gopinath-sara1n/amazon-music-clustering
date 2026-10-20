@@ -3,6 +3,7 @@
 # ==========================================================
 # Unsupervised K-Means Clustering & Content-Based Recommendation
 # Author: Gopinath S
+# Live App: https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/
 # ==========================================================
 
 import os
@@ -167,7 +168,7 @@ PRESET_VIBES = {
         "danceability": 0.50, "energy": 0.32, "loudness": -12.5, "speechiness": 0.04,
         "acousticness": 0.78, "instrumentalness": 0.01, "liveness": 0.12, "valence": 0.42, "tempo": 105.0
     },
-    "🎙 Spoken Word & Audiobooks": {
+    "🎙 Spoken Word & Audio Stories": {
         "danceability": 0.66, "energy": 0.45, "loudness": -13.5, "speechiness": 0.85,
         "acousticness": 0.60, "instrumentalness": 0.00, "liveness": 0.40, "valence": 0.58, "tempo": 100.0
     },
@@ -354,11 +355,10 @@ st.session_state["tempo"] = tempo
 st.title("🎵 Amazon Music Cluster Predictor")
 
 st.markdown("""
-Predict the music cluster of a **new song**
-using its audio characteristics.
+Predict the music cluster of a **new song** using its audio characteristics, 
+recommend similar songs, or **browse tracks by category**.
 
-The application also recommends similar songs
-from the dataset.
+🚀 **Live Deployed App:** [amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app](https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/)
 """)
 
 col1, col2, col3, col4 = st.columns(4)
@@ -437,12 +437,13 @@ else:
 # ----------------------------------------------------------
 # Multi-Tab Layout for Seamless Exploration
 # ----------------------------------------------------------
-tab_predict, tab_analytics, tab_pca, tab_method, tab_deploy = st.tabs([
+tab_predict, tab_category_browse, tab_analytics, tab_pca, tab_method, tab_deploy = st.tabs([
     "🎯 Predictor & Similar Songs",
+    "📻 Browse Songs by Category",
     "📊 Cluster Analytics & EDA",
     "🪐 2D PCA Cluster Map",
     "🔬 Model Methodology & Metrics",
-    "🚀 Cloud Deployment Guide"
+    "🚀 Cloud Deployment & Live App"
 ])
 
 # ==========================================================
@@ -587,7 +588,134 @@ with tab_predict:
     )
 
 # ==========================================================
-# TAB 2: Cluster Analytics & Exploratory Data Analysis
+# TAB 2: Browse Songs by Category (NEW FEATURE)
+# ==========================================================
+with tab_category_browse:
+    st.subheader("📻 Browse Songs by Category")
+    st.markdown("Select a music category to explore all tracks, listen to previews, and filter by genre or popularity.")
+
+    cat_c1, cat_c2 = st.columns([1.4, 2.6])
+    
+    with cat_c1:
+        chosen_cat_id = st.selectbox(
+            "Select Category:",
+            options=[0, 1, 2, 3],
+            format_func=lambda c: f"{CLUSTER_NAMES[c]} ({len(df[df['Cluster'] == c]):,} tracks)"
+        )
+    
+    with cat_c2:
+        cat_subset = df[df["Cluster"] == chosen_cat_id]
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Category Songs", f"{len(cat_subset):,}")
+        m2.metric("Unique Artists", f"{cat_subset['name_artists'].nunique():,}")
+        top_genre_label = cat_subset['display_genres'].value_counts().index[0] if len(cat_subset) > 0 else "N/A"
+        m3.metric("Leading Genre", top_genre_label[:20] + "..." if len(top_genre_label) > 20 else top_genre_label)
+
+    st.info(f"**Musical Profile:** {CLUSTER_DESCRIPTIONS[chosen_cat_id]}")
+
+    # Search & Filter Controls within the category
+    f_col1, f_col2, f_col3, f_col4 = st.columns([1.5, 1.2, 1.2, 0.8])
+    with f_col1:
+        cat_search_term = st.text_input(
+            "Search in Category (Title/Artist):",
+            placeholder="e.g. Pop Smoke, Mistinguett, Chopin...",
+            key="cat_search_input"
+        )
+    with f_col2:
+        top_cluster_genres = ["All Genres"] + [g for g in cat_subset["display_genres"].value_counts().head(35).index if g != "Uncategorized"]
+        selected_genre_filter = st.selectbox("Filter Genre:", top_cluster_genres, key="cat_genre_select")
+    with f_col3:
+        cat_sort_order = st.selectbox(
+            "Sort Order:",
+            ["Most Popular", "Least Popular", "Highest Danceability", "Highest Energy", "Highest Acousticness"],
+            key="cat_sort_select"
+        )
+    with f_col4:
+        cat_page_size = st.selectbox("Show Songs:", [10, 25, 50, 100], index=1, key="cat_page_limit")
+
+    # Apply Filters
+    cat_filtered = cat_subset.copy()
+    if cat_search_term.strip():
+        cat_filtered = cat_filtered[
+            cat_filtered["name_song"].str.contains(cat_search_term, case=False, na=False) |
+            cat_filtered["name_artists"].str.contains(cat_search_term, case=False, na=False)
+        ]
+    if selected_genre_filter != "All Genres":
+        cat_filtered = cat_filtered[cat_filtered["display_genres"].str.contains(selected_genre_filter, case=False, na=False)]
+
+    # Sorting
+    if cat_sort_order == "Most Popular":
+        cat_filtered = cat_filtered.sort_values("popularity_songs", ascending=False)
+    elif cat_sort_order == "Least Popular":
+        cat_filtered = cat_filtered.sort_values("popularity_songs", ascending=True)
+    elif cat_sort_order == "Highest Danceability":
+        cat_filtered = cat_filtered.sort_values("danceability", ascending=False)
+    elif cat_sort_order == "Highest Energy":
+        cat_filtered = cat_filtered.sort_values("energy", ascending=False)
+    elif cat_sort_order == "Highest Acousticness":
+        cat_filtered = cat_filtered.sort_values("acousticness", ascending=False)
+
+    total_cat_matches = len(cat_filtered)
+    results_display = cat_filtered.head(cat_page_size)
+
+    st.markdown(f"**Found {total_cat_matches:,} songs** in {CLUSTER_NAMES[chosen_cat_id]} (Displaying top {len(results_display)}):")
+
+    if total_cat_matches > 0:
+        # Spotify Preview Player for any chosen song in the category list
+        preview_map = {
+            f"🎵 {r['name_song']} - {r['name_artists']} (Popularity: {r['popularity_songs']})": r["id_songs"]
+            for _, r in results_display.iterrows()
+        }
+        chosen_preview_label = st.selectbox("🎧 Select a Song to Listen with Spotify:", list(preview_map.keys()), key="cat_preview_player")
+        chosen_preview_track_id = preview_map[chosen_preview_label]
+        st.components.v1.html(
+            f'<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/{chosen_preview_track_id}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
+            height=85
+        )
+
+        # Category Songs Table
+        browse_table = results_display[[
+            "name_song",
+            "name_artists",
+            "display_genres",
+            "release_year",
+            "duration_fmt",
+            "popularity_songs",
+            "id_songs"
+        ]].copy().rename(columns={
+            "name_song": "Song",
+            "name_artists": "Artist",
+            "display_genres": "Genre",
+            "release_year": "Year",
+            "duration_fmt": "Duration",
+            "popularity_songs": "Popularity"
+        })
+        browse_table["Spotify Link"] = browse_table["id_songs"].apply(lambda sid: f"https://open.spotify.com/track/{sid}")
+        browse_table.insert(0, "#", range(1, len(browse_table) + 1))
+
+        st.dataframe(
+            browse_table[["#", "Song", "Artist", "Genre", "Year", "Duration", "Popularity", "Spotify Link"]],
+            column_config={
+                "Spotify Link": st.column_config.LinkColumn("Listen", display_text="▶️ Open Spotify"),
+                "Popularity": st.column_config.ProgressColumn("Popularity", format="%d", min_value=0, max_value=100)
+            },
+            use_container_width=True,
+            hide_index=True
+        )
+
+        # Download CSV
+        cat_csv = browse_table.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label=f"📥 Download {CLUSTER_NAMES[chosen_cat_id]} Songs as CSV",
+            data=cat_csv,
+            file_name=f"amazon_music_category_{chosen_cat_id}_songs.csv",
+            mime="text/csv"
+        )
+    else:
+        st.warning("No songs matched your query in this category. Try adjusting your search query or genre filter.")
+
+# ==========================================================
+# TAB 3: Cluster Analytics & Exploratory Data Analysis
 # ==========================================================
 with tab_analytics:
     st.subheader("📊 Catalog Analysis & Cluster Insights")
@@ -671,7 +799,7 @@ with tab_analytics:
             )
 
 # ==========================================================
-# TAB 3: 2D PCA Cluster Map
+# TAB 4: 2D PCA Cluster Map
 # ==========================================================
 with tab_pca:
     st.subheader("🪐 2D Principal Component Analysis (PCA) Projection")
@@ -720,7 +848,7 @@ with tab_pca:
     st.plotly_chart(fig_pca, use_container_width=True)
 
 # ==========================================================
-# TAB 4: Model Methodology & Evaluation Metrics
+# TAB 5: Model Methodology & Evaluation Metrics
 # ==========================================================
 with tab_method:
     st.subheader("🔬 Machine Learning Methodology")
@@ -751,28 +879,25 @@ with tab_method:
     """)
 
 # ==========================================================
-# TAB 5: Cloud Deployment Guide
+# TAB 6: Cloud Deployment Guide & Live App Link
 # ==========================================================
 with tab_deploy:
-    st.subheader("🚀 Cloud Deployment Guide")
+    st.subheader("🚀 Live Application & Cloud Deployment")
+    
     st.markdown("""
-    ### Option 1: Streamlit Community Cloud (Free 1-Click Hosting)
-    1. Fork or push to GitHub: `https://github.com/gopinath-sara1n/amazon-music-clustering`
-    2. Go to [share.streamlit.io](https://share.streamlit.io/) and log in with your GitHub account.
-    3. Click **"New App"** and select:
-       - **Repository:** `gopinath-sara1n/amazon-music-clustering`
-       - **Branch:** `main`
-       - **Main file path:** `app.py`
-    4. Click **"Deploy"**! The app will be live on a public URL.
-
+    ### 🟢 Deployed Live Application
+    * **Live App URL:** [https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/](https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/)
+    * **Status:** Active & Production Ready
+    * **Hosting Platform:** Streamlit Community Cloud (connected to GitHub `gopinath-sara1n/amazon-music-clustering`)
+    
     ---
-
-    ### Option 2: Docker Container (Render / Hugging Face Spaces / GCP)
+    
+    ### 🐳 Docker Container Run (Alternative Hosting)
     ```bash
     # Build container
     docker build -t amazon-music-clustering .
 
-    # Run container
+    # Run container locally
     docker run -p 8501:8501 amazon-music-clustering
     ```
     Access at `http://localhost:8501`.
