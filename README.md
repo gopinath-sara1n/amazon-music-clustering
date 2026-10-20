@@ -26,42 +26,74 @@
 
 ## 📖 Overview
 
-The **Amazon Music Clustering & Recommendation System** is an unsupervised machine learning application that segments **95,837 musical tracks** into **4 distinct acoustic categories** using **K-Means Clustering** with **StandardScaler normalization**. 
+The **Amazon Music Clustering & Recommendation System** is an unsupervised machine learning web platform that groups and indexes **95,837 musical tracks** into **4 distinct acoustic categories** using **K-Means Clustering** ($K=4$) with **StandardScaler normalization**.
 
-Using the clustered audio space, the application provides a **real-time reactive music recommendation engine**: adjust any audio characteristic or pick a musical preset, and the app instantly predicts the song's cluster, computes vector similarities, visualizes an audio radar profile, and recommends similar tracks with **playable Spotify embeds**.
+Featuring a **zero-delay reactive audio engine**, the application allows users to dynamically adjust musical attributes, load existing tracks, or select sound presets to immediately predict cluster membership, compare radar audio signatures, and explore nearest neighbor track recommendations with **playable Spotify embeds**.
 
 ---
 
 ## 🌟 Live Application
 
-Launch the live application directly in your browser:
+Experience the deployed, production application directly in your browser:
 
 🔗 **[https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/](https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/)**
 
 ---
 
-## ✨ Features
+## ✨ Key Features & Capabilities
 
-- ⚡ **Instant Real-Time Prediction**: No click-to-predict delay — changing any slider, picking a preset, or loading a song instantly recomputes cluster predictions and recommendations in real time.
-- 🎛️ **Audio Synthesizer & Quick Presets**: Adjust 9 audio sliders (Danceability, Energy, Loudness, Speechiness, Acousticness, Instrumentalness, Liveness, Valence, Tempo) or load one-click sound profiles (*High-Energy Dance, Acoustic Soft Melodies, Spoken Word, Instrumental Ambient*).
-- 🔎 **Song Name Search & Value Loader**: Search any song title or artist in the sidebar to instantly load that track's exact 9 audio feature values into the sliders.
-- 📻 **Browse Songs by Category**: Select any of the 4 music categories to browse all tracks, search by title/artist, filter by genre, sort by popularity or release date, listen with Spotify, and export results to CSV.
-- 🎧 **Interactive Spotify Embeds**: Play preview audio directly inside the web app for top recommended tracks and browsed category songs.
-- 🧭 **Dual Distance Engine**: Choose between **Euclidean Distance** (spatial distance) or **Cosine Similarity** (directional alignment) for recommendations.
-- 🕸️ **Plotly Audio Radar Chart**: Multi-layer spider chart visually comparing your audio input against the cluster's average sound signature.
-- 🪐 **Interactive 2D PCA Cluster Map**: Dimensionality reduction via Principal Component Analysis, plotting where your active song sits in latent cluster space.
-- 📊 **Cluster Analytics & EDA**: Donut distribution breakdown, cross-cluster feature comparison bar charts, and category summary tables.
+### ⚡ 1. Real-Time Reactive Synthesizer (No Predict Button Needed)
+- **Instant Reactive Inference**: Adjust any of the 9 audio sliders or switch presets — the application recomputes cluster membership, distances, radar signatures, and recommendations instantly in real time without requiring manual submission.
+- **9 Core Audio Dimensions**: Full slider control over *Danceability, Energy, Loudness (dB), Speechiness, Acousticness, Instrumentalness, Liveness, Valence, and Tempo (BPM)*.
+
+### 🔎 2. Song Search & Auto-Filler
+- **Search Across 95,837 Tracks**: Search any title or artist in the sidebar.
+- **One-Click Audio Extraction**: Selecting a track automatically populates all 9 sliders with the song's exact recorded audio profile.
+
+### 🎵 3. Quick-Load Sound Presets
+- One-click presets for rapid testing and demonstration:
+  - 💃 **High-Energy Dance / Pop**: High danceability, high energy, punchy loudness.
+  - 🎸 **Acoustic Melodies & Ballads**: High acousticness, soft dynamics, low tempo.
+  - 🎙️ **Spoken Word & Audio Stories**: High speechiness, low melodic features.
+  - 🎼 **Instrumental Focus & Ambient**: High instrumentalness, atmospheric soundscapes.
+
+### 🎧 4. Interactive Spotify Player Embeds
+- **Similar Songs Player**: In the *Predict & Similar Songs* tab, use the `🎧 Select a Song to Listen with Spotify:` dropdown to preview and play audio clips for **any** recommended candidate song directly in the app.
+- **Category Explorer Player**: In the *Browse Songs by Category* tab, pick any filtered track to stream its preview player.
+
+### 📻 5. Browse Songs by Category
+- Explore the entire dataset across any of the 4 clusters.
+- **Search & Filter**: Keyword search on song/artist name and dropdown genre filters.
+- **Multi-Column Sorting**: Sort by popularity, release year, duration, song name, or artist.
+- **CSV Data Export**: Download filtered subsets directly for external analysis.
+
+### 📊 6. Analytics, Visualizations & Latent Projection
+- **Interactive Audio Radar**: Spider chart comparing user audio features against the cluster benchmark.
+- **2D PCA Latent Space**: Dimensionality reduction via Principal Component Analysis showing where the current track sits relative to the cluster distributions.
+- **Cluster Demographics**: Interactive Plotly donut chart and feature comparison bars across all 4 categories.
+
+---
+
+## 🧭 Application Walkthrough (5 Core Tabs)
+
+| Tab | Icon | Key Functionality |
+| :--- | :---: | :--- |
+| **Predict & Similar Songs** | 🎯 | Real-time cluster classification, radar feature comparison, nearest-neighbor song recommendations table, and selectable Spotify audio preview player. |
+| **Browse Songs by Category** | 📻 | Category-based library explorer, multi-parameter search, genre filtering, popularity sorting, Spotify audio player, and CSV export. |
+| **Cluster Analytics** | 📊 | Cluster size distribution donut chart, cross-cluster comparative feature bar charts, and summary statistics. |
+| **2D PCA Cluster Map** | 🪐 | PCA dimensionality reduction projection showing the user's active song plotted alongside dataset clusters. |
+| **Model Methodology** | 🔬 | Complete documentation of feature normalization (StandardScaler), clustering evaluation metrics, and distance formulations. |
 
 ---
 
 ## 🎼 The 4 Music Categories ($K = 4$)
 
-| Category | Signature Name | Track Count | Core Musical Profile |
-| :---: | :--- | :---: | :--- |
-| **0** | **🎸 Acoustic & Soft Songs** | 29,173 (30.4%) | High acousticness ($0.70$), low energy ($0.34$), organic melodic vocals |
-| **1** | **🎉 Dance & High-Energy Songs** | 46,343 (48.4%) | High energy ($0.71$), high loudness ($-7.4\text{ dB}$), high valence ($0.69$), fast tempo |
-| **2** | **🎙 Spoken Word & Audio Stories** | 12,474 (13.0%) | Dominant speechiness ($0.84$), podcasts, radio plays, spoken-word narrations |
-| **3** | **🎼 Instrumental & Ambient Music** | 7,847 (8.2%) | Dominant instrumentalness ($0.81$), ambient soundscapes, focus & classical pieces |
+| Category | Signature Name | Track Count | Share | Core Musical Profile |
+| :---: | :--- | :---: | :---: | :--- |
+| **0** | **🎸 Acoustic & Soft Songs** | 29,173 | 30.4% | High acousticness ($0.70$), low energy ($0.34$), organic melodic vocals |
+| **1** | **🎉 Dance & High-Energy Songs** | 46,343 | 48.4% | High energy ($0.71$), high loudness ($-7.4\text{ dB}$), high valence ($0.69$), fast tempo |
+| **2** | **🎙 Spoken Word & Audio Stories** | 12,474 | 13.0% | Dominant speechiness ($0.84$), podcasts, radio plays, spoken-word narrations |
+| **3** | **🎼 Instrumental & Ambient Music** | 7,847 | 8.2% | Dominant instrumentalness ($0.81$), ambient soundscapes, focus & classical pieces |
 
 ---
 
@@ -85,15 +117,15 @@ The model utilizes **9 core audio features** extracted from **95,837 tracks**:
 
 ## 📊 Optimal Cluster Selection ($K = 4$)
 
-The optimal number of clusters was evaluated using the **Elbow Method (WCSS)**, **Silhouette Score**, and **Davies-Bouldin Index (DBI)**:
+The optimal number of clusters was validated using the **Elbow Method (WCSS)**, **Silhouette Score**, and **Davies-Bouldin Index (DBI)**:
 
-| $K$ | WCSS (Inertia) | Silhouette Score | Davies-Bouldin Index (DBI) | Rationale |
+| $K$ | WCSS (Inertia) | Silhouette Score | Davies-Bouldin Index (DBI) | Evaluation & Decision |
 | :---: | :---: | :---: | :---: | :--- |
-| 2 | 685,950.97 | 0.2102 | 1.8692 | Under-segmentation |
-| 3 | 573,286.79 | **0.2494** | 1.5169 | Merges instrumental & ambient with acoustic |
-| **4** | **507,958.11** | **0.2394** | **1.4638** | **Selected Optimal: Lowest DBI, cleanly separates Instrumental vs Acoustic** |
-| 5 | 464,185.95 | 0.1960 | 1.6164 | Redundant splits |
-| 6 | 437,304.11 | 0.1691 | 1.6251 | Degraded separation |
+| 2 | 685,950.97 | 0.2102 | 1.8692 | Under-segmentation; collapses genres together |
+| 3 | 573,286.79 | **0.2494** | 1.5169 | Merges instrumental & ambient tracks with acoustic music |
+| **4** | **507,958.11** | **0.2394** | **1.4638** | **Selected Optimal: Lowest DBI, cleanly isolates Instrumental vs Acoustic** |
+| 5 | 464,185.95 | 0.1960 | 1.6164 | Creates fragmented, redundant sub-clusters |
+| 6 | 437,304.11 | 0.1691 | 1.6251 | Degraded separation and increased overlap |
 
 ---
 
@@ -103,8 +135,9 @@ The optimal number of clusters was evaluated using the **Elbow Method (WCSS)**, 
 - **Machine Learning:** Scikit-Learn (`KMeans`, `StandardScaler`, `PCA`, `pairwise_distances`)
 - **Web Framework:** Streamlit
 - **Data Manipulation:** Pandas, NumPy
-- **Interactive Visualization:** Plotly (`Scatterpolar`, `Scatter`, `Pie`, `Bar`)
+- **Interactive Visualizations:** Plotly (`Scatterpolar`, `Scatter`, `Pie`, `Bar`)
 - **Model Serialization:** Joblib
+- **Audio Integration:** Spotify Embed iFrames
 
 ---
 
