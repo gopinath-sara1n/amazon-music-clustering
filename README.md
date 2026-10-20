@@ -36,13 +36,13 @@ Featuring a **zero-delay reactive audio engine**, the application allows users t
 
 Experience the deployed, production application directly in your browser:
 
-🔗 **[https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/](https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/)**
+🔗 **[Live App](https://amazon-music-clustering-l4vs6wlkhjbtld8nq4trdv.streamlit.app/)**
 
 ---
 
 ## ✨ Key Features & Capabilities
 
-### ⚡ 1. Real-Time Reactive Synthesizer (No Predict Button Needed)
+### ⚡ 1. Real-Time Reactive Synthesizer
 - **Instant Reactive Inference**: Adjust any of the 9 audio sliders or switch presets — the application recomputes cluster membership, distances, radar signatures, and recommendations instantly in real time without requiring manual submission.
 - **9 Core Audio Dimensions**: Full slider control over *Danceability, Energy, Loudness (dB), Speechiness, Acousticness, Instrumentalness, Liveness, Valence, and Tempo (BPM)*.
 
