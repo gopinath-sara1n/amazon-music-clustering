@@ -1,4 +1,4 @@
-# 🎵 Amazon Music Clustering and Recommendation System
+# 🎵 Amazon Music AI Recommender & Cluster Explorer
 
 <p align="center">
   <img src="images/streamlit_1.png" alt="Amazon Music Cluster Predictor" width="900">
@@ -6,390 +6,216 @@
 
 <p align="center">
 
-![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
-![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-KMeans-orange?logo=scikitlearn)
-![Streamlit](https://img.shields.io/badge/Streamlit-Web%20App-red?logo=streamlit)
-![License](https://img.shields.io/badge/License-MIT-green)
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue?logo=python)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-FF4B4B?logo=streamlit)](https://streamlit.io/)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-KMeans-F7931E?logo=scikitlearn)](https://scikit-learn.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-Interactive%20Charts-3F4F75?logo=plotly)](https://plotly.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </p>
+
+---
 
 ## 📖 Overview
 
-This project applies **K-Means Clustering**, an unsupervised machine learning algorithm, to group **95,837 Amazon Music tracks** based on their audio characteristics.
+The **Amazon Music AI Recommender & Cluster Explorer** is an end-to-end unsupervised machine learning and content-based recommendation platform. It analyzes **95,837 musical tracks** across **9 continuous audio characteristics**, grouping songs into **4 semantically distinct acoustic clusters** using **K-Means Clustering** with **StandardScaler normalization**.
 
-The clustered songs are then used to build a **content-based music recommendation system**, where users provide audio feature values, and the application predicts the song's cluster before recommending the **Top 10 most similar songs** using **Euclidean Distance**.
-
-A user-friendly **Streamlit web application** has been developed to demonstrate the complete workflow.
+The application pairs K-Means clustering with a **dual-metric recommendation engine** (Cosine Similarity & Euclidean Distance), interactive **Spotify Web Player embedding**, **Plotly audio radar charts**, and **2D PCA latent cluster projections**.
 
 ---
 
-# 🎯 Objectives
+## ✨ Key Features & Enhancements
 
-- Perform Exploratory Data Analysis (EDA)
-- Select meaningful audio features
-- Apply feature scaling using StandardScaler
-- Determine the optimal number of clusters
-- Train a K-Means clustering model
-- Analyze and interpret clusters
-- Assign meaningful cluster names
-- Visualize clustering results
-- Save the trained model using Pickle
-- Build a Streamlit web application
-- Recommend similar songs using Euclidean Distance
-
----
-
-# 📂 Dataset Information
-
-| Property | Value |
-|-----------|-------|
-| Dataset | Amazon Music Dataset |
-| Total Songs | **95,837** |
-| Total Features | **23** |
-| Float Columns | 10 |
-| Integer Columns | 7 |
-| String Columns | 6 |
-| Missing Values | None |
-| Duplicate Rows | None |
+- 🎧 **Interactive Spotify Embeds**: Every song features embedded Spotify mini-players and direct listen links for instant audio discovery.
+- 🔎 **95,000+ Track Library Search**: Search by song title or artist to auto-populate exact audio features and find similar songs.
+- 🎛️ **Audio Synthesizer & Instant Presets**: Tune custom audio sliders (Danceability, Energy, Loudness, Tempo, Valence, Acousticness, etc.) or load 1-click vibe presets (*High-Energy Party, Acoustic Coffeehouse, Deep Ambient, Spoken Word, Melodic Pop*).
+- 🧭 **Dual Similarity Engine**:
+  - **Cosine Similarity (Recommended)**: Directional angular alignment of normalized audio vectors.
+  - **Euclidean Distance**: Spatial geometric proximity in feature space.
+- 🕸️ **Plotly Audio Radar (Spider) Chart**: Multi-layer radar chart comparing input song characteristics against cluster centroid averages.
+- 🪐 **Interactive 2D PCA Cluster Map**: High-dimensional space reduced via Principal Component Analysis, plotting your active track with a golden star marker ⭐ in latent space.
+- 📊 **Exploratory Data Analysis (EDA) Dashboard**: Donut distribution breakdown, cross-cluster feature comparison bar charts, and top track showcases per cluster.
+- 🚀 **Cloud & Container Ready**: Self-contained relative path resolution, pinned `requirements.txt`, Docker configuration, and 1-click Streamlit Community Cloud support.
 
 ---
 
-# 🎵 Selected Audio Features
+## 📂 Dataset & Audio Features
 
-The clustering model uses the following **9 audio features**.
+The model analyzes **95,837 tracks** across **9 core audio features**:
 
-- Danceability
-- Energy
-- Loudness
-- Speechiness
-- Acousticness
-- Instrumentalness
-- Liveness
-- Valence
-- Tempo
-
-These features describe the musical characteristics of each song.
-
----
-
-# ⚙️ Feature Scaling
-
-Since the selected features have different ranges, **StandardScaler** was applied before training the model.
-
-### Benefits
-
-- Equal contribution from every feature
-- Improved clustering performance
-- Better Euclidean distance calculation
-- Faster convergence
+| Audio Feature | Description | Range / Unit |
+| :--- | :--- | :--- |
+| **Danceability** | How suitable a track is for dancing based on tempo, rhythm, and beat strength | $0.0 - 1.0$ |
+| **Energy** | Perceptual measure of intensity, activity, dynamic range, and timbre | $0.0 - 1.0$ |
+| **Loudness** | Overall loudness of a track in decibels (dB) | $-60.0 \text{ to } +5.4 \text{ dB}$ |
+| **Speechiness** | Detects the presence of spoken words (audiobooks, podcasts vs songs) | $0.0 - 1.0$ |
+| **Acousticness** | Confidence measure of whether the track is acoustic | $0.0 - 1.0$ |
+| **Instrumentalness** | Predicts whether a track contains no vocals | $0.0 - 1.0$ |
+| **Liveness** | Detects presence of an audience in the recording | $0.0 - 1.0$ |
+| **Valence** | Musical positiveness (happy, euphoric vs sad, depressed) | $0.0 - 1.0$ |
+| **Tempo** | Overall estimated pace of a track in beats per minute (BPM) | $0 - 240 \text{ BPM}$ |
 
 ---
 
-# 📊 Selecting the Optimal Number of Clusters
+## 📊 Optimal Cluster Selection ($K = 4$)
 
-The optimal number of clusters was evaluated using:
+The optimal number of clusters was determined using the **Elbow Method (WCSS)**, **Silhouette Score**, and **Davies-Bouldin Index (DBI)**:
 
-- ✅ Elbow Method (WCSS)
-- ✅ Silhouette Score
-- ✅ Davies-Bouldin Index (DBI)
+| $K$ | WCSS (Inertia) | Silhouette Score | Davies-Bouldin Index (DBI) | Selection Rationale |
+| :---: | :---: | :---: | :---: | :--- |
+| 2 | 685,950.97 | 0.2102 | 1.8692 | Under-segmentation |
+| 3 | 573,286.79 | **0.2494** | 1.5169 | Highest silhouette, but merges instrumental & ambient with acoustic |
+| **4** | **507,958.11** | **0.2394** | **1.4638** | **Selected Optimal: Lowest DBI, distinct separation of Instrumental vs Acoustic** |
+| 5 | 464,185.95 | 0.1960 | 1.6164 | Overfitting / redundant splits |
+| 6 | 437,304.11 | 0.1691 | 1.6251 | Degraded separation |
 
-## Evaluation Results
+### 🎼 The 4 Acoustic Clusters
 
-| K | WCSS | Silhouette Score | DBI |
-|---|---------------:|---------------:|------:|
-|2|685950.97|0.2102|1.8692|
-|3|573286.79|**0.2494**|1.5169|
-|4|507958.11|0.2394|**1.4638**|
-|5|464185.95|0.1960|1.6164|
-|6|437304.11|0.1691|1.6251|
-|7|411371.56|0.1751|1.5432|
-|8|387592.12|0.1828|1.5102|
-|9|366813.54|0.1828|1.4526|
-|10|353306.28|0.1749|1.4732|
-
-### Final Selection
-
-Although **K = 3** achieved the highest Silhouette Score,
-
-**K = 4** was selected because it provides:
-
-- Better cluster interpretation
-- Better separation of music styles
-- Better overall ranking
-- More meaningful recommendations
+| Cluster # | Signature Name | Track Count | Core Audio Characteristics |
+| :---: | :--- | :---: | :--- |
+| **0** | **🎸 Acoustic & Melodic Music** | 29,173 (30.4%) | High acousticness ($0.70$), low energy ($0.34$), organic melodic vocals |
+| **1** | **⚡ Energetic & Danceable Music** | 46,343 (48.4%) | High energy ($0.71$), high loudness ($-7.4\text{ dB}$), high valence ($0.69$), fast tempo |
+| **2** | **🎙️ Speech & Narration Audio** | 12,474 (13.0%) | Dominant speechiness ($0.84$), podcasts, spoken word, comedy, radio plays |
+| **3** | **🎹 Instrumental & Ambient Music** | 7,847 (8.2%) | Dominant instrumentalness ($0.81$), ambient soundscapes, focus & classical tracks |
 
 ---
 
-# 🎼 Final Music Clusters
-
-| Cluster | Cluster Name |
-|----------|------------------------------|
-| 0 | Acoustic & Melodic Music |
-| 1 | Energetic & Danceable Music |
-| 2 | Speech & Narration Audio |
-| 3 | Instrumental & Ambient Music |
-
-Cluster names were assigned after
-
-- Randomly inspecting songs from every cluster
-- Comparing average feature values
-
----
-
-# 📊 Cluster Characteristics
-
-| Cluster | Description |
-|----------|-------------|
-| 🎵 Acoustic & Melodic Music | High acousticness with calm and melodic songs |
-| ⚡ Energetic & Danceable Music | High energy, danceability and loudness |
-| 🎤 Speech & Narration Audio | Very high speechiness with spoken-word content |
-| 🎹 Instrumental & Ambient Music | High instrumentalness and relaxing ambient tracks |
-
----
-
-# 📈 Visualizations
-
-## PCA Projection of Clusters
-
-<p align="center">
-<img src="images/pca_clusters.png" width="900">
-</p>
-
-Shows the separation of four music clusters after dimensionality reduction using Principal Component Analysis.
-
----
-
-## Average Feature Comparison
-
-<p align="center">
-<img src="images/feature_barplots.png" width="900">
-</p>
-
-Compares the average value of each audio feature across all clusters.
-
----
-
-## Heatmap
-
-<p align="center">
-<img src="images/heatmap.png" width="900">
-</p>
-
-Provides an overall comparison of feature values among clusters.
-
----
-
-## Feature Distribution
-
-<p align="center">
-<img src="images/boxplot.png" width="900">
-</p>
-
-Displays the distribution of each feature inside every cluster.
-
----
-
-## Songs per Cluster
-
-<p align="center">
-<img src="images/cluster_distribution.png" width="700">
-</p>
-
-Shows how songs are distributed across the four identified music clusters.
-
----
-
-# 💾 Saved Models
-
-The following trained objects are saved using **Pickle**.
-
-- `kmeans_model.pkl`
-- `scaler.pkl`
-
-This enables future predictions without retraining.
-
----
-
-# 💻 Streamlit Web Application
-
-The project includes an interactive **Streamlit application**.
-
-## Home Page
-
-<p align="center">
-<img src="images/streamlit_1.png" width="900">
-</p>
-
-Users can
-
-- Enter audio feature values
-- Predict music cluster
-- View cluster description
-
----
-
-## Recommendation Page
-
-<p align="center">
-<img src="images/streamlit_2.png" width="900">
-</p>
-
-The application
-
-- Displays processed input
-- Predicts the cluster
-- Filters songs from the predicted cluster
-- Calculates Euclidean Distance
-- Recommends the Top 10 nearest songs
-
----
-
-# 🚀 Application Workflow
+## 🏗️ System Architecture
 
 ```
-User Input
-     │
-     ▼
-Create DataFrame
-     │
-     ▼
-StandardScaler
-     │
-     ▼
-K-Means Prediction
-     │
-     ▼
-Predict Cluster
-     │
-     ▼
-Filter Songs from Same Cluster
-     │
-     ▼
-Euclidean Distance
-     │
-     ▼
-Top 10 Similar Songs
+User Input (Search Track / Custom Sliders)
+                   │
+                   ▼
+     Extract 9 Audio Features
+                   │
+                   ▼
+ StandardScaler Transform: z = (x - μ) / σ
+                   │
+                   ▼
+  K-Means Model (K = 4 Clusters)
+                   │
+                   ▼
+     Predict Cluster Assignment
+                   │
+     ┌─────────────┴─────────────┐
+     ▼                           ▼
+Plotly Audio Radar        Similarity Engine
+& PCA 2D Visualizer      (Cosine Sim / Euclidean)
+                                 │
+                                 ▼
+                     Top-N Candidate Ranking
+                                 │
+                                 ▼
+                    Interactive Spotify Players
+                    & Downloadable CSV Playlist
 ```
 
 ---
 
-# 📁 Project Structure
+## 🚀 Quickstart & Local Installation
 
-```
-amazon-music-clustering/
-│
-├── Amazon_Music_EDA_KMeans_Recommendation.ipynb
-├── app.py
-├── requirements.txt
-├── README.md
-├── dataset.csv
-├── kmeans_model.pkl
-├── scaler.pkl
-│
-├── images/
-│   ├── pca_clusters.png
-│   ├── feature_barplots.png
-│   ├── heatmap.png
-│   ├── boxplot.png
-│   ├── cluster_distribution.png
-│   ├── streamlit_1.png
-│   └── streamlit_2.png
-│
-└── report/
-    └── Amazon Music Clustering - Project Report.pdf
-```
+### Prerequisites
+- Python 3.10, 3.11, 3.12, or 3.13
+- Git
 
----
-
-# 🛠️ Technologies Used
-
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- Scikit-learn
-- Streamlit
-- Pickle
-
----
-
-# 📦 Installation
-
-Clone the repository
-
+### 1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/amazon-music-clustering.git
-```
-
-Move into the project
-
-```bash
+git clone https://github.com/gopinath-sara1n/amazon-music-clustering.git
 cd amazon-music-clustering
 ```
 
-Install dependencies
+### 2. Set Up Virtual Environment (Recommended)
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
 
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-Run the Streamlit application
-
+### 4. Launch Streamlit Application
 ```bash
 streamlit run app.py
+```
+Open your browser at `http://localhost:8501`.
+
+---
+
+## 🌐 Cloud Deployment Guide
+
+### Option 1: Streamlit Community Cloud (Recommended & Free)
+1. Push your repository to GitHub (`https://github.com/gopinath-sara1n/amazon-music-clustering`).
+2. Visit **[share.streamlit.io](https://share.streamlit.io/)** and sign in with GitHub.
+3. Click **"New App"** and enter:
+   - **Repository:** `gopinath-sara1n/amazon-music-clustering`
+   - **Branch:** `main`
+   - **Main file path:** `app.py`
+4. Click **"Deploy"**!
+> *The app automatically rebuilds on every `git push` to `main`.*
+
+---
+
+### Option 2: Docker Container (Hugging Face Spaces / Render / GCP / AWS)
+
+Build and run using the included `Dockerfile`:
+
+```bash
+# 1. Build Docker image
+docker build -t amazon-music-clustering .
+
+# 2. Run container
+docker run -d -p 8501:8501 --name music-app amazon-music-clustering
+```
+Access at `http://localhost:8501`.
+
+---
+
+## 📁 Repository Structure
+
+```
+amazon-music-clustering/
+│
+├── .streamlit/
+│   └── config.toml             # Dark music-themed UI styling
+├── images/
+│   ├── streamlit_1.png         # Main app interface preview
+│   ├── streamlit_2.png         # Recommendation view preview
+│   ├── pca.png                 # PCA cluster separation
+│   ├── heatmap.png             # Correlation heatmap
+│   ├── feature_barplots.png    # Feature distributions
+│   └── boxplot.png             # Feature box plots
+│
+├── app.py                      # Main production Streamlit web application
+├── amazon_music_clustered.csv  # 95,837 Clustered tracks with Spotify IDs
+├── kmeans_model.pkl            # Pre-trained K-Means (K=4) model
+├── scaler.pkl                  # Fitted StandardScaler object
+├── requirements.txt            # Production dependencies
+├── Dockerfile                  # Containerized deployment manifest
+├── .dockerignore               # Docker build exclusions
+├── LICENSE                     # MIT Open Source License
+└── README.md                   # Comprehensive project documentation
 ```
 
 ---
 
-# 📊 Results
-
-✅ Successfully clustered **95,837 songs**
-
-✅ Identified **4 meaningful music categories**
-
-✅ Built a content-based recommendation engine
-
-✅ Developed an interactive Streamlit web application
-
-✅ Recommends similar songs using Euclidean Distance
-
----
-
-# 🔮 Future Improvements
-
-- Spotify API integration
-- Genre-aware recommendations
-- Artist similarity
-- Cosine Similarity recommendation
-- Deep Learning embeddings
-- UMAP visualization
-- Cloud deployment
-
----
-
-# 👨‍💻 Author
+## 👨‍💻 Author
 
 **Gopinath S**
-
-B.Tech Leather Technology | Data Science | Machine Learning | Python | Streamlit
-
-📧 Email: *gopinath13107@gmail.com*
-
-🔗 LinkedIn: [https://www.linkedin.com/in/gopinaths](https://www.linkedin.com/in/gopinaths/)
-
-🐙 GitHub: https://github.com/gopinath-sara1n
-
----
-
-# ⭐ Support
-
-If you found this project useful, please consider giving it a **⭐ Star** on GitHub.
-
-It helps others discover the project and motivates future improvements.
+- 🎓 **Background:** B.Tech Leather Technology | Data Science & Machine Learning
+- 🐙 **GitHub:** [@gopinath-sara1n](https://github.com/gopinath-sara1n)
+- 💼 **LinkedIn:** [Gopinath S](https://www.linkedin.com/in/gopinaths/)
+- 📧 **Email:** *gopinath13107@gmail.com*
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
