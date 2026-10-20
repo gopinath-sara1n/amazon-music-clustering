@@ -227,6 +227,7 @@ def on_preset_change():
     if selected_preset in PRESET_VIBES:
         for feat_name, feat_val in PRESET_VIBES[selected_preset].items():
             st.session_state[feat_name] = float(feat_val)
+        st.session_state["loaded_song_info"] = None
 
 # ----------------------------------------------------------
 # Sidebar - User Input Audio Features
@@ -243,6 +244,42 @@ preset_selection = st.sidebar.selectbox(
     key="preset_selector",
     on_change=on_preset_change
 )
+
+# Song Name Search & Audio Feature Loader
+search_song_term = st.sidebar.text_input(
+    "🔎 Or Search Song Name to Load Values:",
+    placeholder="e.g. Dior, Arcade, Queen...",
+    key="search_song_input"
+)
+
+if search_song_term.strip():
+    search_hits = df[
+        df["name_song"].str.contains(search_song_term, case=False, na=False) |
+        df["name_artists"].str.contains(search_song_term, case=False, na=False)
+    ].head(25)
+    
+    if len(search_hits) > 0:
+        track_map = {
+            f"🎵 {r['name_song']} - {r['name_artists']} ({r['release_year']})": r["id_songs"]
+            for _, r in search_hits.iterrows()
+        }
+        chosen_track_key = st.sidebar.selectbox(
+            "Select Matching Song:",
+            list(track_map.keys()),
+            key="matching_song_select"
+        )
+        if st.sidebar.button("📥 Load This Song's Audio Values", use_container_width=True, key="btn_load_song_values"):
+            chosen_id = track_map[chosen_track_key]
+            chosen_row = df[df["id_songs"] == chosen_id].iloc[0]
+            for feat in FEATURE_COLS:
+                st.session_state[feat] = float(chosen_row[feat])
+            st.session_state["loaded_song_info"] = f"{chosen_row['name_song']} by {chosen_row['name_artists']}"
+            st.rerun()
+    else:
+        st.sidebar.caption("⚠️ No songs found matching that query.")
+
+if st.session_state.get("loaded_song_info"):
+    st.sidebar.success(f"🎵 Active Song: **{st.session_state['loaded_song_info']}**")
 
 st.sidebar.markdown("---")
 

@@ -42,8 +42,9 @@ Launch the live application directly in your browser:
 
 ## ✨ Features
 
-- ⚡ **Instant Real-Time Prediction**: No click-to-predict delay — changing any slider or picking a preset instantly recomputes cluster predictions and recommendations in real time.
+- ⚡ **Instant Real-Time Prediction**: No click-to-predict delay — changing any slider, picking a preset, or loading a song instantly recomputes cluster predictions and recommendations in real time.
 - 🎛️ **Audio Synthesizer & Quick Presets**: Adjust 9 audio sliders (Danceability, Energy, Loudness, Speechiness, Acousticness, Instrumentalness, Liveness, Valence, Tempo) or load one-click sound profiles (*High-Energy Dance, Acoustic Soft Melodies, Spoken Word, Instrumental Ambient*).
+- 🔎 **Song Name Search & Value Loader**: Search any song title or artist in the sidebar to instantly load that track's exact 9 audio feature values into the sliders.
 - 📻 **Browse Songs by Category**: Select any of the 4 music categories to browse all tracks, search by title/artist, filter by genre, sort by popularity or release date, listen with Spotify, and export results to CSV.
 - 🎧 **Interactive Spotify Embeds**: Play preview audio directly inside the web app for top recommended tracks and browsed category songs.
 - 🧭 **Dual Distance Engine**: Choose between **Euclidean Distance** (spatial distance) or **Cosine Similarity** (directional alignment) for recommendations.
