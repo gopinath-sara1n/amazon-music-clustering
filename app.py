@@ -233,7 +233,7 @@ def on_preset_change():
 # ----------------------------------------------------------
 st.sidebar.header("🎼 Enter Song Audio Features")
 st.sidebar.markdown(
-    "Adjust the audio feature values below and click **Predict Cluster**."
+    "Adjust the audio features below to see instant cluster predictions and similar song recommendations in real time."
 )
 
 # Preset Selector with on_change callback
@@ -331,14 +331,6 @@ metric_type = st.sidebar.selectbox(
 top_k = st.sidebar.slider("Number of Recommendations:", 5, 25, 10)
 exclude_duplicate_artists = st.sidebar.checkbox("Exclude duplicate artists", value=False)
 
-st.sidebar.divider()
-
-# Predict Button
-predict_btn = st.sidebar.button(
-    "🎯 Predict Cluster",
-    type="primary",
-    use_container_width=True
-)
 
 # ----------------------------------------------------------
 # Main Page Header & Dashboard Statistics
